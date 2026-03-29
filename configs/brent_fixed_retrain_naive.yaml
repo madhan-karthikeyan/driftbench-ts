@@ -1,0 +1,28 @@
+dataset:
+  downsample_freq: w
+  name: brent
+  sample_entities: 1
+drift:
+  enabled: false
+metrics:
+- mae
+- rmse
+- smape
+model:
+  name: naive
+  params: {}
+output:
+  results_dir: results/brent/fixed_retrain/naive
+  save_metrics: true
+  save_predictions: false
+  save_window_metrics: true
+retraining:
+  enabled: true
+  min_steps_between_retrain: 1
+  policy: fixed_schedule
+  retrain_every_n_steps: 10
+seed: 42
+simulation:
+  forecast_horizon_hours: 168
+  history_window_days: 60
+  step_size_hours: 168

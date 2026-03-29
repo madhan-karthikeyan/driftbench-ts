@@ -1,0 +1,31 @@
+dataset:
+  downsample_freq: h
+  name: traffic
+  sample_entities: 1
+drift:
+  enabled: false
+metrics:
+- mae
+- rmse
+- smape
+model:
+  name: naive
+  params: {}
+output:
+  results_dir: results/traffic/adaptive_retrain/naive
+  save_metrics: true
+  save_predictions: false
+  save_window_metrics: true
+retraining:
+  consecutive_decay_rate: 0.5
+  decay_consecutive: true
+  drift_threshold: 0.5
+  enabled: true
+  min_steps_between_retrain: 3
+  policy: drift_triggered
+  require_consecutive: 2
+seed: 42
+simulation:
+  forecast_horizon_hours: 24
+  history_window_days: 30
+  step_size_hours: 24

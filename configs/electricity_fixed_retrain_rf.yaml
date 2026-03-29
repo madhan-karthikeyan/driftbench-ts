@@ -1,0 +1,32 @@
+dataset:
+  downsample_freq: h
+  name: electricity
+  sample_entities: 5
+drift:
+  enabled: false
+metrics:
+- mae
+- rmse
+- smape
+model:
+  name: rf
+  params:
+    max_depth: 8
+    n_estimators: 50
+    n_lags: 3
+    random_state: 42
+output:
+  results_dir: results/electricity/fixed_retrain/rf
+  save_metrics: true
+  save_predictions: false
+  save_window_metrics: true
+retraining:
+  enabled: true
+  min_steps_between_retrain: 1
+  policy: fixed_schedule
+  retrain_every_n_steps: 10
+seed: 42
+simulation:
+  forecast_horizon_hours: 24
+  history_window_days: 30
+  step_size_hours: 24
