@@ -1,0 +1,6 @@
+step,timestamp,drift_detected,drift_score,error,reason,total_retrains
+0,1992-12-29,False,0.0,0.0,fixed_schedule_every_10_steps,0
+10,1999-09-01,False,0.0,23.444860258962144,fixed_schedule_every_10_steps,1
+20,2006-05-22,False,0.0,17.267452129270296,fixed_schedule_every_10_steps,2
+30,2013-01-23,False,0.0,13.034858645341336,fixed_schedule_every_10_steps,3
+40,2019-10-01,False,0.0,92.43284000962527,fixed_schedule_every_10_steps,4

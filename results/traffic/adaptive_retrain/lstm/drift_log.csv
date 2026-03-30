@@ -1,0 +1,4 @@
+timestamp,step,entity_id,drift_detected,drift_score,detector,retrain_triggered,retrain_reason
+2012-10-30 11:00:00,2,i94_westbound,True,0.5147070576350905,residual,False,no_drift_consecutive_0/2
+2012-10-31 11:00:00,3,i94_westbound,True,0.9733293132407312,residual,False,no_drift_consecutive_0/2
+2012-11-01 11:00:00,4,i94_westbound,True,2.975742117398711,residual,False,no_drift_consecutive_0/2

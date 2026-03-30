@@ -1,0 +1,2 @@
+step,timestamp,drift_detected,drift_score,error,reason,total_retrains
+0,2016-07-31 02:00:00,False,0.0,0.0,initial_training,0

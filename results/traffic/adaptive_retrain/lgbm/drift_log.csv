@@ -1,0 +1,11 @@
+timestamp,step,entity_id,drift_detected,drift_score,detector,retrain_triggered,retrain_reason
+2012-11-02 11:00:00,5,i94_westbound,True,0.5966524054521581,residual,False,no_drift_consecutive_0/2
+2012-11-03 11:00:00,6,i94_westbound,True,1.2366532931416305,residual,False,no_drift_consecutive_0/2
+2012-11-04 10:00:00,7,i94_westbound,True,1.0431893262199534,residual,False,no_drift_consecutive_0/2
+2013-12-10 20:00:00,411,i94_westbound,True,0.5087266407782386,residual,False,no_drift_consecutive_0/2
+2016-07-10 10:00:00,1005,i94_westbound,True,0.5200562182042151,residual,False,no_drift_consecutive_0/2
+2017-01-30 04:00:00,1245,i94_westbound,True,0.5665751736993566,residual,False,no_drift_consecutive_0/2
+2018-01-10 21:00:00,1658,i94_westbound,True,0.5191712168943377,residual,False,no_drift_consecutive_0/2
+2018-03-25 01:00:00,1745,i94_westbound,True,0.50063303271498,residual,False,no_drift_consecutive_0/2
+2018-04-14 12:00:00,1772,i94_westbound,True,0.5836801882348989,residual,False,no_drift_consecutive_0/2
+2018-05-04 05:00:00,1795,i94_westbound,True,0.608480612629151,residual,False,no_drift_consecutive_0/2

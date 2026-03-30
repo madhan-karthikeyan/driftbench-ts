@@ -1,0 +1,21 @@
+{
+  "mae": 153.57590802961514,
+  "rmse": 345.3340946494421,
+  "smape": 9.545324549542254,
+  "mape": 11.744429605059114,
+  "error_mean": 153.57590802961514,
+  "error_std": 309.3057991700592,
+  "error_max": 7244.095872239188,
+  "error_autocorr_lag1": 0.6619796500799843,
+  "relative_error_mean": 0.11744429605059115,
+  "compute_proxy": 533.0,
+  "n_windows": 5330,
+  "n_predictions": 127920,
+  "retrain_total_retrains": 533,
+  "retrain_compute_proxy": 533.0,
+  "retrain_drift_triggered_retrains": 0,
+  "retrain_total_steps": 5330,
+  "retrain_retrain_rate": 0.1,
+  "retrain_avg_hours_between_retrains": 47.6390977443609,
+  "retrain_median_hours_between_retrains": 240.0
+}

@@ -1,0 +1,28 @@
+dataset:
+  downsample_freq: w
+  name: wti
+  sample_entities: 1
+drift:
+  enabled: false
+metrics:
+- mae
+- rmse
+- smape
+model:
+  name: naive
+  params:
+    random_state: 42
+output:
+  results_dir: results/wti/no_retrain/naive
+  save_metrics: true
+  save_predictions: false
+  save_window_metrics: true
+retraining:
+  enabled: true
+  min_steps_between_retrain: 999999
+  policy: no_retraining
+seed: 42
+simulation:
+  forecast_horizon_hours: 168
+  history_window_days: 60
+  step_size_hours: 168
