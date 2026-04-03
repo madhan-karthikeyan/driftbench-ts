@@ -196,3 +196,118 @@ npm install && npm run dev
 ## License
 
 MIT License
+
+---
+
+## Setup Instructions
+
+### Prerequisites
+
+- Python 3.9+
+- pip package manager
+- Git
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/madhan-karthikeyan/driftbench-ts.git
+cd driftbench-ts
+```
+
+### 2. Create Virtual Environment
+
+```bash
+# Create virtual environment
+python -m venv venv
+
+# Activate (Linux/macOS)
+source venv/bin/activate
+
+# Activate (Windows)
+venv\Scripts\activate
+```
+
+### 3. Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Verify Installation
+
+```bash
+python -c "from driftbench.models import get_available_models; print(get_available_models())"
+```
+
+### 5. Run Your First Experiment
+
+```bash
+# Using a pre-built configuration
+python run_experiment.py --config configs/electricity_fixed_retrain_lgbm.yaml
+
+# Or create your own config
+python run_experiment.py --config configs/your_config.yaml --output results/your_output/
+```
+
+### 6. Run All Experiments
+
+```bash
+python run_all.py
+```
+
+### 7. View Results
+
+```bash
+# Using the dashboard
+python dashboard-react/api.py --results results --port 5001
+```
+
+Then open `dashboard-react/` and run:
+```bash
+npm install
+npm run dev
+```
+
+### 8. Configuration Options
+
+Key configuration parameters in YAML files:
+
+```yaml
+dataset:
+  name: electricity           # Dataset name
+  sample_entities: 5          # Number of entities to sample
+  downsample_freq: h          # Frequency: h=hourly, w=weekly
+
+model:
+  name: lgbm                 # Model: naive, seasonal_naive, rf, lgbm, lstm, tsmixer
+  params:
+    n_estimators: 50        # Number of trees
+    max_depth: 5             # Tree depth
+
+simulation:
+  history_window_days: 30    # Training window size
+  forecast_horizon_hours: 24 # Prediction horizon
+  step_size_hours: 24       # Rolling step size
+
+retraining:
+  enabled: true
+  policy: fixed_schedule     # no_retraining, fixed_schedule, drift_triggered
+  retrain_every_n_steps: 10 # For fixed_schedule
+
+drift:
+  enabled: true
+  detector: ks_test        # Detector: ks_test, adwin, page_hinkley, wasserstein
+  drift_threshold: 0.5      # Threshold for drift detection
+
+seed: 42                    # Random seed for reproducibility
+```
+
+### Troubleshooting
+
+**LightGBM not found**: Install with `pip install lightgbm`
+
+**PyTorch not found**: Install with `pip install torch`
+
+**Dataset loading errors**: Ensure `datasets/` directory contains required CSV files
+
+**Dashboard API errors**: Check that Flask is installed (`pip install flask`)
