@@ -94,6 +94,21 @@ def get_strategy_config(strategy: str) -> dict:
     return configs.get(strategy, configs['no_retrain'])
 
 
+def get_drift_config(strategy: str) -> dict:
+    """Get drift configuration based on strategy."""
+    if strategy == 'adaptive_retrain':
+        return {
+            'enabled': True,
+            'detector': 'ks_test',
+            'on': 'residual',
+            'detector_params': {}
+        }
+    else:
+        return {
+            'enabled': False
+        }
+
+
 def get_model_params(model: str) -> dict:
     """Get model-specific parameters."""
     params = {
@@ -128,9 +143,7 @@ def create_config(dataset: str, strategy: str, model: str) -> dict:
             'forecast_horizon_hours': ds_config['forecast_horizon_hours'],
             'step_size_hours': ds_config['step_size_hours'],
         },
-        'drift': {
-            'enabled': False,
-        },
+        'drift': get_drift_config(strategy),
         'retraining': st_config,
         'metrics': ['mae', 'rmse', 'smape'],
         'output': {

@@ -10,7 +10,8 @@ Model Names (used in configs and results):
 - rf: Random Forest
 - lgbm: LightGBM
 - lstm: LSTM neural network
-- tsmixer: TSMixer (MLP-based)
+- ridge_features: Ridge Regression with temporal features
+- tsmixer_legacy: Alias for ridge_features (backward compatibility)
 """
 
 from typing import Dict, Type, Optional
@@ -40,7 +41,7 @@ def get_model(name: str, **kwargs) -> 'BaseModel':
     Parameters
     ----------
     name : str
-        Model name (naive, seasonal_naive, rf, lgbm, lstm, tsmixer)
+        Model name (naive, seasonal_naive, rf, lgbm, lstm, ridge_features, tsmixer_legacy)
     **kwargs
         Model-specific parameters
         
@@ -49,6 +50,12 @@ def get_model(name: str, **kwargs) -> 'BaseModel':
     BaseModel
         Instantiated model
     """
+    # Backward compatibility mapping
+    name_mapping = {
+        'tsmixer': 'tsmixer_legacy',
+    }
+    name = name_mapping.get(name, name)
+    
     if name not in MODEL_REGISTRY:
         raise ValueError(
             f"Unknown model: '{name}'. Available: {list(MODEL_REGISTRY.keys())}"

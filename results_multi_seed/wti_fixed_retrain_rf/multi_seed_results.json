@@ -1,0 +1,107 @@
+{
+  "config": {
+    "dataset": {
+      "downsample_freq": "w",
+      "name": "wti",
+      "sample_entities": 1
+    },
+    "drift": {
+      "enabled": false
+    },
+    "metrics": [
+      "mae",
+      "rmse",
+      "smape"
+    ],
+    "model": {
+      "name": "rf",
+      "params": {
+        "max_depth": 8,
+        "n_estimators": 50,
+        "n_lags": 3,
+        "random_state": 46
+      }
+    },
+    "output": {
+      "results_dir": "results/wti/fixed_retrain/rf",
+      "save_metrics": true,
+      "save_predictions": false,
+      "save_window_metrics": true
+    },
+    "retraining": {
+      "enabled": true,
+      "min_steps_between_retrain": 1,
+      "policy": "fixed_schedule",
+      "retrain_every_n_steps": 10
+    },
+    "seed": 42,
+    "simulation": {
+      "forecast_horizon_hours": 168,
+      "history_window_days": 60,
+      "step_size_hours": 168
+    }
+  },
+  "seeds": [
+    42,
+    43,
+    44,
+    45,
+    46
+  ],
+  "n_successful": 5,
+  "statistics": {
+    "mae": {
+      "mean": 8.222873439188406,
+      "std": 0.04510178879417438,
+      "min": 8.179697993416442,
+      "max": 8.296586499272479,
+      "values": [
+        8.230917532177132,
+        8.296586499272479,
+        8.179697993416442,
+        8.207453603752636,
+        8.19971156732334
+      ]
+    },
+    "rmse": {
+      "mean": 15.399624006313147,
+      "std": 0.0619255753844052,
+      "min": 15.345876035810068,
+      "max": 15.504982947860428,
+      "values": [
+        15.39489681614713,
+        15.504982947860428,
+        15.365496474386228,
+        15.386867757361877,
+        15.345876035810068
+      ]
+    },
+    "smape": {
+      "mean": 15.499565828318856,
+      "std": 0.09255770749339244,
+      "min": 15.37809483213952,
+      "max": 15.619380802514065,
+      "values": [
+        15.55859142026723,
+        15.619380802514065,
+        15.37809483213952,
+        15.474571004565085,
+        15.46719108210838
+      ]
+    },
+    "total_retrains": {
+      "mean": 5.0,
+      "std": 0.0,
+      "min": "5",
+      "max": "5",
+      "values": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ]
+    }
+  },
+  "timestamp": "2026-04-01T13:16:55.196871"
+}

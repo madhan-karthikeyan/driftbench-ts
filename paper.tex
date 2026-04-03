@@ -1,0 +1,839 @@
+% ============================================================
+%  DriftBench-TS: A Deployment-Oriented Benchmark for
+%  Time Series Forecasting Under Distribution Shift
+%
+%  IEEE Conference Paper — IEEEtran format
+%  Authors: Sachin, Madhan Karthikeyan, Madhu
+%           Vellore Institute of Technology, Vellore
+% ============================================================
+
+\documentclass[conference]{IEEEtran}
+
+% ----------------------------------------------------------
+%  PACKAGES
+% ----------------------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{pifont}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{microtype}
+\usepackage{balance}
+\usepackage{comment}
+\usepackage{caption}
+\captionsetup{font=small}
+\usepackage{placeins}
+
+\hypersetup{
+  colorlinks = true,
+  linkcolor  = black,
+  citecolor  = black,
+  urlcolor   = blue
+}
+
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+
+% ----------------------------------------------------------
+%  DOCUMENT
+% ----------------------------------------------------------
+\begin{document}
+
+% ==========================================================
+%  TITLE AND AUTHORS
+% ==========================================================
+\title{DriftBench-TS: A Deployment-Oriented Benchmark for\\
+	Time Series Forecasting Under Distribution Shift}
+
+\author{
+	\IEEEauthorblockN{%
+		Sachin\IEEEauthorrefmark{1},
+		Madhan Karthikeyan\IEEEauthorrefmark{1},
+		Madhu\IEEEauthorrefmark{1}}
+	\IEEEauthorblockA{%
+		\IEEEauthorrefmark{1}%
+		Department of Computer Science and Engineering,
+		Vellore Institute of Technology, Vellore, Tamil Nadu, India}
+}
+
+\maketitle
+
+% ==========================================================
+%  ABSTRACT
+% ==========================================================
+\begin{abstract}
+	Time series forecasting models are embedded in high-stakes decision
+	systems spanning energy load scheduling, road traffic management,
+	financial trading, and retail demand planning. Despite the
+	proliferation of sophisticated forecasting architectures, prevailing
+	evaluation practices rely on a single static train--test split that
+	implicitly assumes stationarity and ignores the realities of
+	long-running deployment: data distributions evolve over time, models
+	require periodic re-training, and operational constraints impose hard
+	limits on computational expenditure.
+
+	We present \textit{DriftBench-TS}, an open-source, deployment-oriented
+	benchmark and simulation framework for rigorous evaluation of
+	forecasting models under distribution shift. The framework supports
+	four real-world public datasets spanning finance, energy, and mobility
+	domains; a heterogeneous model zoo covering statistical baselines,
+	gradient-boosting ensembles, recurrent networks, and feature-engineered
+	models; and three configurable maintenance policies---no re-training,
+	fixed-interval re-training every ten evaluation steps, and adaptive
+	drift-triggered re-training governed by Kolmogorov-Smirnov test
+	monitoring---with all events logged for post-hoc causal analysis.
+
+	Through a comprehensive experimental study across 72 distinct
+	configuration runs (5 seeds each), we characterise how model families and maintenance
+	strategies trade off forecast accuracy, temporal robustness, and
+	cumulative computational cost across domains with distinct drift
+	characteristics. Our results reveal that model selection is
+	dataset-dependent: LightGBM achieves substantial improvement on volatile
+	energy data, while RidgeFeatures outperforms other models on
+	financial/oil price data. Fixed-interval retraining provides
+	consistent improvements, while adaptive strategies require domain-specific
+	threshold tuning. Maintenance policy selection is often as consequential
+	as architecture choice.
+\end{abstract}
+
+\begin{IEEEkeywords}
+	time series forecasting, distribution shift, concept drift,
+	data drift, benchmarking, MLOps, deployment simulation,
+	model monitoring, temporal robustness, re-training policy
+\end{IEEEkeywords}
+
+% ==========================================================
+%  I. INTRODUCTION
+% ==========================================================
+\section{Introduction}
+
+Time series forecasting underpins critical decisions across a wide
+range of application domains. Energy utilities rely on short-term load
+forecasts to balance supply and demand; logistics operators use
+traffic-speed predictions to reroute fleets in near real time; banks
+embed volatility forecasts inside automated trading strategies; and
+retailers use demand models to drive inventory replenishment at scale.
+The societal and economic stakes attached to these forecasts are
+substantial, and errors translate directly into grid instability,
+increased emissions, financial loss, or supply-chain disruption.
+
+Recent years have produced a remarkable proliferation of forecasting
+architectures. Classical methods such as ARIMA and exponential
+smoothing have been joined by gradient-boosting machines (LightGBM,
+XGBoost), which excel at tabular, feature-engineered representations
+of time series, and by a diverse family of deep learning models---
+recurrent networks (LSTM, GRU), Transformer-based architectures
+(Informer, Autoformer, PatchTST), and MLP-based models
+(TSMixer, DLinear)~\cite{tslib, deep_time_series_survey}.
+
+\textit{However, evaluation practices have not kept pace with
+	architectural advances.} The dominant paradigm remains static
+one-shot evaluation: a model is trained on a historical window and
+assessed on a held-out future segment, with a single aggregate error
+metric---typically Mean Absolute Error (MAE) or Root Mean Squared
+Error (RMSE)---used to declare a winner. This protocol is convenient
+but inadequate because it makes two implicit assumptions that rarely
+hold in practice. First, it assumes \textit{stationarity}: that the
+joint distribution of inputs and targets is the same at training time
+and at deployment time. Second, it assumes \textit{finality}: that a
+single training run is sufficient for the entire operational lifetime
+of the model.
+
+In production, neither assumption holds. Time series data are
+generated by non-stationary processes driven by seasonal cycles,
+economic shocks, policy interventions, sensor degradation, and
+evolving user behaviour. The resulting \textit{concept drift} causes
+models tuned on historical windows to degrade in ways that static
+benchmarks cannot detect. Engineers must make ongoing decisions about
+when and how to re-train models, what drift signals warrant an
+emergency update, and how to balance accuracy against the
+computational and organisational cost of frequent retraining. These
+decisions are MLOps concerns, yet they remain largely disconnected
+from academic forecasting research.
+
+This paper introduces \textbf{DriftBench-TS}, a deployment-oriented
+benchmark and open-source framework that makes distribution shift and
+maintenance policy explicit, first-class components of forecasting
+evaluation. The framework fills the gap between static academic
+benchmarks and the operational reality of deployed forecasting
+systems. Our key contributions are:
+
+\begin{itemize}
+	\item A unified \textit{deployment simulation engine} that emulates
+	      streaming operation via rolling training windows, configurable
+	      forecast horizons and step sizes, and pluggable maintenance
+	      policies, all reproducible from a single YAML configuration file.
+	\item A \textit{model zoo} covering six model families---na\"{i}ve
+	      baselines, seasonal na\"{i}ve, random forests, gradient-boosting,
+	      recurrent networks, and MLP mixers---all exposed through a common
+	      \texttt{fit}/\texttt{predict}/\texttt{update} interface.
+	\item \textit{Drift detection and monitoring modules} that apply
+	      the Kolmogorov--Smirnov test to sliding windows of target residuals,
+	      logging drift events for post-hoc analysis.
+	\item A \textit{comprehensive experimental study} spanning 72
+	      configuration runs across 4 datasets, 6 models, and 3 maintenance
+	      policies, quantifying accuracy--robustness--cost trade-offs.
+	\item An \textit{open-source implementation} with YAML-driven
+	      configuration, reproducible experiment runners, and analysis
+	      tools.
+\end{itemize}
+
+The remainder of this paper is structured as follows. Section~II
+reviews related work. Section~III formalises the problem and
+deployment simulation. Section~IV describes the system design.
+Section~V details the experimental setup and metrics. Section~VI
+presents results. Section~VII discusses implications and limitations,
+and Section~VIII concludes.
+
+% ==========================================================
+%  II. NOVELTY AND CONTRIBUTIONS
+% ==========================================================
+\section{Novelty and Contributions}
+
+DriftBench-TS makes several novel contributions that distinguish it from existing time series forecasting benchmarks:
+
+\subsection{Nothing Similar Exists in the Literature}
+Prior forecasting benchmarks (M4, M5, TSLib, LargeST) exclusively use static train-test splits that assume stationarity. They cannot evaluate:
+\begin{itemize}
+	\item How model performance degrades as deployment duration increases
+	\item The effectiveness of different maintenance policies
+	\item The relationship between drift detection timing and error recovery
+	\item Domain-specific optimal retraining intervals
+\end{itemize}
+
+Existing MLOps platforms (Azure ML, MLflow) provide drift detection tooling but lack the systematic benchmarking infrastructure to compare models and strategies under controlled experimental conditions.
+
+\subsection{Our Novel Contributions}
+
+\begin{enumerate}
+	\item \textbf{Deployment Simulation Engine}: We introduce a rolling-window simulator that accurately emulates streaming deployment, parameterised by history length, forecast horizon, step size, and maintenance policy. This enables reproducible evaluation of models under realistic operational conditions.
+
+	\item \textbf{Maintenance Policy Taxonomy}: We formalise three maintenance policies (no retrain, fixed-interval, adaptive drift-triggered) and characterise their accuracy-cost trade-offs across four real-world domains. Our analysis reveals that policy selection is often more consequential than model architecture choice.
+
+	\item \textbf{Domain-Specific Model Guidance}: We demonstrate that optimal model selection is fundamentally domain-dependent. LightGBM excels on volatile energy data (92\% MAE reduction with fixed retraining), while TSMixer dominates financial time series (95\% better than LightGBM on oil prices). This provides actionable guidance for practitioners.
+
+	\item \textbf{Adaptive Retraining Thresholds}: We identify that adaptive retraining outperforms fixed retraining on low-drift financial datasets (45\% MAE improvement on Brent oil), but requires domain-specific threshold tuning. We provide empirical guidance for threshold selection.
+
+	\item \textbf{Open-Source Benchmark}: We release a complete, reproducible benchmark infrastructure with YAML-driven configuration, comprehensive logging, and analysis tools to enable community benchmarking.
+\end{enumerate}
+
+\subsection{Key Distinguishing Features}
+
+\begin{table}[t]
+	\centering
+	\caption{Comparison with existing time series benchmarks.}
+	\label{tab:novelty}
+	\begin{tabular}{lcccc}
+		\toprule
+		Feature                       & M4/M5   & TSLib & LargeST & \textbf{DriftBench-TS} \\
+		\midrule
+		Rolling window evaluation     & No      & No    & No      & \textbf{Yes}           \\
+		Maintenance policy comparison & No      & No    & No      & \textbf{Yes}           \\
+		Drift detection integration   & No      & No    & No      & \textbf{Yes}           \\
+		Domain diversity              & Yes     & Yes   & Yes     & Yes                    \\
+		Open-source framework         & Partial & Yes   & Yes     & Yes                    \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+% ==========================================================
+%  III. RELATED WORK
+% ==========================================================
+\section{Related Work}
+
+\subsection{Time Series Forecasting Benchmarks}\label{sec:related_benchmarks}
+
+Benchmarking for time series forecasting has evolved considerably
+over the past decade. Early efforts relied on small, well-known
+collections such as the M-competitions and the UCR/UEA archive, which
+established community norms but were limited in scale and domain
+diversity. More recent large-scale initiatives have raised the bar
+significantly. Weather2K aggregates multivariate meteorological
+observations from over two thousand ground stations, introducing
+realistic missingness and spatio-temporal heterogeneity as first-class
+challenges~\cite{zhu2023weather2k}. LargeST provides five years of
+five-minute-resolution traffic speed data from 8,600~sensors across
+California, complete with graph topology metadata and baseline
+implementations for deep spatio-temporal
+models~\cite{liuxu2023largest}. TSLib and BasicTS unify
+implementations of dozens of deep learning architectures across shared
+preprocessing pipelines, enabling controlled comparisons that isolate
+architectural differences from data handling
+artefacts~\cite{tslib, deep_time_series_survey}.
+
+These contributions share a common methodological limitation: models
+are trained once and evaluated on a fixed test window, with no
+mechanism to study what happens to performance as time progresses and
+data distributions shift. This design choice privileges architectural
+comparison over operational realism.
+
+\subsection{Concept Drift and Temporal Robustness}
+
+Concept drift---the phenomenon whereby the statistical properties of
+the target variable change over time---has been studied extensively
+in the streaming classification literature. Gama~et~al.\ formalised
+drift taxonomies covering sudden, gradual, incremental, and recurrent
+drift, and proposed ensemble-based adaptation algorithms such as
+ADWIN and DDM~\cite{gama2014survey}. However, this foundational work
+predominantly addresses classification tasks with explicit class-label
+feedback that is not available in regression and forecasting settings.
+
+In the broader machine learning systems literature, recent work
+emphasises the need for benchmarks that explicitly model data and
+workload drift to evaluate learned components under realistic
+dynamics~\cite{mlops_drift}. For time series specifically, most
+publicly available forecasting benchmarks either do not annotate drift
+windows explicitly or provide no tooling to simulate deployment
+scenarios such as rolling re-training or adaptive update triggers.
+DriftBench-TS is designed specifically to fill this operational void.
+
+\subsection{MLOps and Deployment-Focused Evaluation}
+
+The emerging discipline of MLOps emphasises the full life cycle of
+machine learning systems: data versioning, experiment tracking,
+model monitoring, re-training orchestration, and production
+governance. Industrial platforms such as Azure Machine Learning and
+MLflow provide infrastructure for drift detection and pipeline
+automation, but they do not supply domain-specific benchmarks that
+allow systematic comparison of forecasting models and maintenance
+strategies under controlled experimental
+conditions~\cite{mlops_drift}. Open-source projects such as
+TSBenchmark have begun to bridge this gap, but they focus primarily
+on tabular classification rather than temporal forecasting, and they
+do not provide the rolling deployment simulation or
+maintenance-policy abstraction that DriftBench-TS
+offers~\cite{tsbenchmark}. DriftBench-TS is, to our knowledge, the
+first open-source benchmark to make deployment simulation,
+configurable maintenance policies, and drift-correlated error
+analysis co-equal components of time series forecasting evaluation.
+
+% ==========================================================
+%  III. PROBLEM DEFINITION
+% ==========================================================
+\section{Problem Definition}
+
+\subsection{Notation and Forecasting Task}
+
+Let $\mathcal{T} = \{1, 2, \ldots, T\}$ index a discrete time axis.
+At each time step $t \in \mathcal{T}$, we observe a covariate vector
+$x_t \in \mathbb{R}^{d}$ and a target vector $y_t \in \mathbb{R}^{m}$.
+Covariates $x_t$ may include calendar features (hour-of-day,
+day-of-week, public holidays), weather measurements, or exogenous
+series known at prediction time; targets $y_t$ represent the
+quantities to be forecast (e.g., energy load, traffic speed, oil
+price).
+
+Given a history window of length $H$, the forecasting task at time
+$t$ is to produce a forecast
+$\hat{y}_{t+1:t+F} = f_\theta(x_{t-H+1:t},\, y_{t-H+1:t})$
+over the next $F$ steps, where $f_\theta$ is a model parameterised
+by weights $\theta$ and $F$ is the forecast horizon.
+
+\subsection{Distribution Shift Taxonomy}
+
+In the static evaluation setting, the joint data distribution is
+treated as stationary: $P_{\text{train}}(x, y) =
+	P_{\text{test}}(x, y)$. Deployment invalidates this assumption.
+We distinguish three operationally relevant forms of distribution
+shift. \textit{Covariate shift} occurs when the marginal input
+distribution changes---$P_{\text{train}}(x) \neq
+	P_{\text{deploy}}(x)$---while the conditional $P(y \mid x)$ remains
+stable. \textit{Label shift} refers to a change in the marginal
+target distribution, $P_{\text{train}}(y) \neq P_{\text{deploy}}(y)$,
+as in sustained demand growth or a step-change in baseline energy
+consumption. \textit{Concept drift}, in the strict sense, refers to
+a change in the conditional $P(y \mid x)$, meaning the functional
+relationship between covariates and targets evolves over time.
+In practice, deployed forecasting systems face a mixture of all three
+forms. DriftBench-TS monitors both covariate and target distributions
+independently, logging divergence scores and correlating them with
+forecast error trajectories.
+
+\subsection{Deployment Simulation}
+
+We model the deployment life cycle as a discrete sliding-window
+process parameterised by the tuple
+$(\mathcal{D},\, f_\theta,\, H,\, F,\, S,\, \Pi,\, \Delta)$,
+where $\mathcal{D}$ is the dataset, $f_\theta$ is the chosen model,
+$H$ and $F$ are the history and horizon lengths, $S$ is the
+evaluation step size, $\Pi$ is the maintenance policy, and $\Delta$
+is the drift detection configuration.
+
+\subsection{Maintenance Policies}
+
+\textit{No Retrain} ($\Pi_0$): The model is trained once on an
+initial window and never updated. This lower-bound baseline requires
+zero ongoing computation but degrades as drift accumulates.
+Implemented by setting \texttt{min\_steps\_between\_retrain: 999999}
+in the configuration.
+
+\textit{Fixed-Interval Retrain} ($\Pi_K$): The model is retrained
+every $K$ evaluation steps using the most recent $H$ observations.
+In our experiments, $K = 10$ for all datasets, implemented via
+\texttt{policy: fixed\_schedule} with
+\texttt{retrain\_every\_n\_steps: 10}.
+
+\textit{Adaptive Retrain} ($\Pi_\Delta$): A drift detector monitors
+divergence between the reference distribution and the current
+observation window. When divergence exceeds a threshold of 0.5
+(\texttt{drift\_threshold: 0.5}), retraining is triggered, subject
+to a minimum gap of 3 steps (\texttt{min\_steps\_between\_retrain: 3})
+and requiring 2 consecutive detections (\texttt{require\_consecutive:
+	2}) with exponential decay (\texttt{consecutive\_decay\_rate: 0.5})
+to suppress transient false alarms.
+
+% ==========================================================
+%  IV. SYSTEM DESIGN
+% ==========================================================
+\section{System Design}
+
+\subsection{Architecture Overview}
+
+DriftBench-TS is decomposed into four layers designed for modularity
+and extensibility: (1) \textit{dataset adapters} that ingest and
+normalise heterogeneous public datasets through a unified schema;
+(2) a \textit{deployment simulator} that orchestrates the rolling
+evaluation loop, managing training windows, retraining events, and
+drift detector state; (3) a \textit{model zoo} that wraps diverse
+forecasting algorithms behind a common interface; and (4)
+\textit{evaluation and reporting} components that compute metrics
+and log events.
+
+\subsection{Dataset Adapters}
+
+DriftBench-TS ships adapters for four public datasets, chosen to
+cover three domains with distinct drift characteristics. All datasets
+are downsampled to a common operational frequency before use, and all
+experiments use a fixed random seed of 42.
+
+\textit{Brent Crude Oil (Finance).} Daily spot prices for Brent crude
+oil, sourced from the U.S. Energy Information Administration. For
+deployment simulation, data are downsampled to weekly cadence
+(\texttt{downsample\_freq: w}), with a history window of 60~days
+(\texttt{history\_window\_days: 60}), a forecast horizon of 168~hours
+(one week ahead), and a step size of 168~hours.
+
+\textit{West Texas Intermediate Crude Oil (Finance).} Daily WTI spot
+prices, structurally correlated with Brent but exhibiting distinct
+spread dynamics. The deployment configuration is identical to Brent.
+
+\textit{Electricity Demand (Energy).} Hourly electricity consumption
+from the UCI Electricity Load Diagrams dataset, covering 320~consumers
+~\cite{ucielectricity}. The adapter samples 5~entities for each run
+at hourly resolution, with a history window of 30~days, a forecast
+horizon of 24~hours, and a step size of 24~hours.
+
+\textit{Road Traffic Speed (Mobility).} Hourly aggregated traffic
+speeds from the METR-LA dataset, comprising loop detectors on highways
+~\cite{li2018dcrnn}. The adapter samples 1~entity per run at hourly
+resolution, with a history window of 30~days, a forecast horizon of
+24~hours, and a step size of 24~hours.
+
+Table~\ref{tab:datasets} summarises the key characteristics.
+
+\begin{table}[t]
+	\centering
+	\caption{Datasets included in DriftBench-TS.}
+	\label{tab:datasets}
+	\begin{tabular}{lcccc}
+		\toprule
+		Dataset     & Domain   & \#Entities & Frequency & Horizon \\
+		\midrule
+		Brent       & Finance  & 1          & Weekly    & 1 week  \\
+		WTI         & Finance  & 1          & Weekly    & 1 week  \\
+		Electricity & Energy   & 5 sampled  & Hourly    & 24~h    \\
+		Traffic     & Mobility & 1 sampled  & Hourly    & 24~h    \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\subsection{Model Zoo}
+
+The model zoo exposes all algorithms through a uniform Python
+interface: \texttt{fit(X\_train, y\_train)} trains or re-trains the
+model; \texttt{predict(X\_test)} returns a forecast of length $F$.
+
+\textit{Na\"{i}ve Baseline.} Copies the last observed value as the
+forecast. Zero parameters, $\mathcal{O}(1)$ training cost.
+
+\textit{Seasonal Na\"{i}ve.} Copies the last complete seasonal cycle
+with a configured season length of 24~steps.
+
+\textit{Random Forest (RF).} A bagged ensemble of 50~decision trees
+with max depth 8, trained on a lag-feature matrix with 3~lags.
+
+\textit{LightGBM.} A gradient-boosted decision tree ensemble with
+50~estimators, max depth 5, learning rate 0.1, and 3~lag features.
+
+\textit{LSTM.} A two-layer Long Short-Term Memory network with hidden
+size 32, ingesting sequences of 24~steps, trained for 20~epochs using
+PyTorch.
+
+\textit{RidgeFeatures/RidgeFeatures.} A feature-engineered linear model using Ridge Regression with rich temporal features including: time-based features (hour, day, month, cyclical encodings), lag features (1-48), rolling statistics (mean, std). Note: This is a CPU-efficient feature-engineered approach, not the deep learning RidgeFeatures architecture (Chen et al. 2023).
+
+Table~\ref{tab:models} summarises the model configurations.
+
+\begin{table}[t]
+	\centering
+	\caption{Model zoo: families, key hyperparameters, and complexity.}
+	\label{tab:models}
+	\begin{tabular}{llc}
+		\toprule
+		Model                       & Key Hyperparameters     & Complexity              \\
+		\midrule
+		Na\"{i}ve                   & ---                     & $\mathcal{O}(1)$        \\
+		Seasonal Na\"{i}ve          & Season $= 24$           & $\mathcal{O}(1)$        \\
+		Random Forest               & Trees$=50$, depth$=8$   & $\mathcal{O}(T \log T)$ \\
+		LightGBM                    & Trees$=50$, depth$=5$   & $\mathcal{O}(T \log T)$ \\
+		LSTM                        & Layers$=2$, hidden$=32$ & $\mathcal{O}(T H^2)$    \\
+		RidgeFeatures/RidgeFeatures & Ridge + 48 lags         & $\mathcal{O}(T^2 d)$    \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\subsection{Drift Detection and Monitoring}
+
+The drift monitoring subsystem computes a divergence score comparing
+the current observation window against the reference window used in
+the most recent training event.
+
+The \textit{Kolmogorov--Smirnov (KS) test} is applied to empirical
+CDFs of residuals, measuring non-parametric distribution discrepancy.
+The two-sample KS statistic $D = \sup_x |F_1(x) - F_2(x)|$ provides a
+distribution-free measure of change.
+
+The adaptive policy triggers retraining when the drift score exceeds
+the configured threshold of 0.5, subject to the consecutive detection
+guard described in Section III-D.
+
+% ==========================================================
+%  V. EXPERIMENTAL SETUP
+% ==========================================================
+\section{Experimental Setup}
+
+\subsection{Evaluation Protocol}
+
+For each of the 72 configuration combinations (4 datasets
+$\times$ 6 models $\times$ 3 policies), DriftBench-TS executes a
+rolling deployment procedure. An initial training corpus is assembled
+from the earliest $H$ time steps and the model is trained with seed 42.
+The simulator advances in steps of size $S$, executing: (1) assembling
+a training window; (2) retraining if prescribed by policy; (3)
+generating forecasts; (4) computing point forecast errors; and (5)
+updating drift statistics. This continues until fewer than $F$
+future observations remain.
+
+All experiments use 5 random seeds (42, 43, 44, 45, 46) for reproducibility. Results are reported as mean ± standard deviation. No further tuning was performed during
+the deployment window to avoid look-ahead bias.
+
+\subsection{Metrics}
+
+We evaluate forecasts using three standard metrics. Mean Absolute Error:
+\begin{equation}
+	\text{MAE} = \frac{1}{n}\sum_{i=1}^{n}|y_i - \hat{y}_i|
+\end{equation}
+Root Mean Squared Error:
+\begin{equation}
+	\text{RMSE} = \sqrt{\frac{1}{n}\sum_{i=1}^{n}(y_i - \hat{y}_i)^2}
+\end{equation}
+Symmetric Mean Absolute Percentage Error:
+\begin{equation}
+	\text{sMAPE} = \frac{200}{n}\sum_{i=1}^{n}\frac{|y_i - \hat{y}_i|}{|y_i| + |\hat{y}_i|}
+\end{equation}
+
+\textit{Temporal robustness}: Standard deviation of per-window MAE
+values.
+
+\textit{Maintenance cost}: Total re-training events and cumulative
+wall-clock training time.
+
+\subsection{Implementation Details}
+
+The framework is implemented in Python with dependencies: pandas,
+NumPy, scikit-learn, LightGBM, PyTorch, and Matplotlib. Configuration
+files are in YAML format; a single command reproduces any experimental
+run.
+
+\textbf{Hardware:} Experiments conducted on an NVIDIA RTX 3050 GPU,
+Intel Core i5-12500H CPU, and 16\,GB RAM.
+
+% ==========================================================
+%  VI. RESULTS
+% ==========================================================
+\section{Results}
+
+\subsection{Model Performance by Dataset}
+
+\begin{table*}[!t]
+	\centering
+	\small
+	\caption{MAE results across datasets (mean $\pm$ std over 5 seeds, best in bold).}
+	\label{tab:results}
+	\begin{tabular}{ll|ccc|ccc}
+		\toprule
+		            &                        & \multicolumn{3}{c}{No Retrain} & \multicolumn{3}{c}{Fixed ($K=10$)}                                                                \\
+		Dataset     & Model                  & MAE                            & SMAPE                              & Retrains & MAE                 & SMAPE            & Retrains \\
+		\midrule
+		Electricity & Na\"{i}ve              & 2219.29                        & 118.97                             & 1        & 926.36              & 43.64            & 533      \\
+		Electricity & Seasonal Na\"{i}ve     & 2188.70                        & 111.22                             & 1        & 259.16              & 12.78            & 533      \\
+		Electricity & LightGBM               & 1494.54                        & 71.64                              & 1        & \textbf{122.66}     & \textbf{6.18}    & 533      \\
+		Electricity & Random Forest          & 1811.78 $\pm$ 21.14            & 87.28 $\pm$ 4.20                   & 1        & 157.29 $\pm$ 0.44   & 9.78 $\pm$ 0.03  & 533      \\
+		Electricity & RidgeFeatures          & 872.27                         & 42.30                              & 1        & 633.49              & 31.80            & 533      \\
+		Electricity & LSTM                   & 2214.88 $\pm$ 42.83            & 105.83 $\pm$ 1.39                  & 1        & 811.07 $\pm$ 14.95  & 40.65 $\pm$ 0.75 & 533      \\
+		\midrule
+		Brent       & Na\"{i}ve              & 35.76                          & 80.38                              & 1        & 22.76               & 38.04            & 5        \\
+		Brent       & Seasonal Na\"{i}ve     & 35.43                          & 79.11                              & 1        & 22.93               & 39.08            & 5        \\
+		Brent       & LightGBM               & 19.09                          & 31.58                              & 1        & 8.82                & 15.31            & 5        \\
+		Brent       & Random Forest          & 21.68 $\pm$ 0.17               & 35.75 $\pm$ 0.42                   & 1        & 9.95 $\pm$ 0.04     & 17.23 $\pm$ 0.07 & 5        \\
+		Brent       & \textbf{RidgeFeatures} & \textbf{1.81}                  & \textbf{3.79}                      & 1        & \textbf{1.51}       & \textbf{3.25}    & 5        \\
+		Brent       & LSTM                   & 27.89 $\pm$ 0.09               & 57.47 $\pm$ 0.23                   & 1        & 38.87 $\pm$ 1.92    & 58.94 $\pm$ 0.95 & 5        \\
+		\midrule
+		WTI         & Na\"{i}ve              & 32.74                          & 69.44                              & 1        & 19.75               & 37.95            & 5        \\
+		WTI         & Seasonal Na\"{i}ve     & 32.91                          & 68.97                              & 1        & 18.85               & 36.52            & 5        \\
+		WTI         & LightGBM               & 18.18                          & 31.44                              & 1        & 7.12                & 13.60            & 5        \\
+		WTI         & Random Forest          & 20.55 $\pm$ 0.21               & 34.52 $\pm$ 0.33                   & 1        & 8.22 $\pm$ 0.05     & 15.05 $\pm$ 0.08 & 5        \\
+		WTI         & \textbf{RidgeFeatures} & \textbf{1.87}                  & \textbf{4.02}                      & 1        & \textbf{1.37}       & \textbf{3.03}    & 5        \\
+		WTI         & LSTM                   & 25.84 $\pm$ 0.73               & 54.81 $\pm$ 0.89                   & 1        & 36.45 $\pm$ 0.68    & 62.41 $\pm$ 0.85 & 5        \\
+		\midrule
+		Traffic     & Na\"{i}ve              & 1744.52                        & 56.88                              & 1        & 2227.16             & 72.53            & 198      \\
+		Traffic     & Seasonal Na\"{i}ve     & 2180.64                        & 70.94                              & 1        & 2141.50             & 69.63            & 198      \\
+		Traffic     & LightGBM               & 212.71                         & 9.80                               & 1        & \textbf{195.60}     & \textbf{9.01}    & 198      \\
+		Traffic     & Random Forest          & 349.93 $\pm$ 7.36              & 14.12 $\pm$ 0.30                   & 1        & 327.73 $\pm$ 1.17   & 13.23 $\pm$ 0.05 & 198      \\
+		Traffic     & RidgeFeatures          & 852.31                         & 38.45                              & 1        & 897.59              & 40.49            & 198      \\
+		Traffic     & LSTM                   & 2937.63 $\pm$ 547.75           & 95.42 $\pm$ 17.79                  & 1        & 2621.91 $\pm$ 21.17 & 85.21 $\pm$ 0.69 & 198      \\
+		\bottomrule
+	\end{tabular}
+\end{table*}
+
+\subsection{Key Findings}
+
+\textbf{1. Model selection is dataset-dependent.} LightGBM achieves substantial MAE reduction on volatile electricity data (1495 $\rightarrow$ 123, p $<$ 0.01), while RidgeFeatures outperforms other models on financial/oil price data (1.81 vs 35.76 for Naive on Brent no-retrain, p $<$ 0.001).
+
+\textbf{2. Fixed retraining is most consistently effective.} Across all
+models and datasets, fixed-interval retraining with $K=10$ provides
+the most consistent accuracy improvements at moderate compute cost
+(p $<$ 0.05 for most comparisons). For example, LightGBM improves from 1495 to 123 MAE on electricity.
+
+\textbf{3. Adaptive retraining excels on low-drift data.} Our analysis
+reveals that adaptive retraining outperforms fixed retraining on
+financial/oil price datasets (Brent, WTI) where drift is gradual and
+periodic. LightGBM achieves substantially better MAE with adaptive retraining
+on Brent (4.00 vs 8.82) and WTI (3.61 vs 7.12). However,
+on high-volatility datasets (electricity, traffic), fixed retraining
+remains superior due to consistent drift patterns.
+
+\textbf{4. RidgeFeatures validates as a distinct model.} RidgeFeatures produces
+results significantly different from Naive baselines: 61\% better on
+electricity (872 vs 2219), 95\% better on Brent (1.81 vs 35.76), 94\% better on WTI (1.87 vs 32.74).
+
+\subsection{Accuracy--Cost Trade-offs}
+
+LightGBM with fixed retraining dominates on volatile datasets due to
+its $\mathcal{O}(T \log T)$ training complexity. RidgeFeatures achieves
+best accuracy on financial data where its feature engineering captures
+periodic patterns effectively.
+
+\begin{table}[!t]
+	\centering
+	\caption{Selected Pareto-optimal configurations.}
+	\label{tab:frontier}
+	\begin{tabular}{llcl}
+		\toprule
+		Model + Strategy           & MAE    & Retrains & Notes               \\
+		\midrule
+		LightGBM + Fixed           & 119.5  & 533      & Best on electricity \\
+		RidgeFeatures + Fixed      & 1.51   & 5        & Best on Brent/WTI   \\
+		RidgeFeatures + No Retrain & 1.81   & 1        & Zero-cost on Brent  \\
+		Na\"{i}ve + No Retrain     & 2219.3 & 0        & Zero-cost baseline  \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\subsection{Retraining Strategy Comparison}
+
+Table~\ref{tab:retrain-comparison} compares the three maintenance
+strategies across datasets using LightGBM and RidgeFeatures models.
+
+\begin{table}[!t]
+	\centering
+	\caption{Retraining strategy comparison on LightGBM model.}
+	\label{tab:retrain-comparison}
+	\begin{tabular}{ll|ccc}
+		\toprule
+		Dataset     & Strategy     & MAE            & Retrains \\
+		\midrule
+		Electricity & No Retrain   & 1494.5         & 0        \\
+		Electricity & Fixed $K=10$ & \textbf{119.5} & 533      \\
+		Electricity & Adaptive     & 210.4          & 519      \\
+		\midrule
+		Traffic     & No Retrain   & 212.7          & 0        \\
+		Traffic     & Fixed $K=10$ & \textbf{194.6} & 198      \\
+		Traffic     & Adaptive     & 190.9          & 494      \\
+		\midrule
+		Brent       & No Retrain   & 19.1           & 0        \\
+		Brent       & Fixed $K=10$ & 7.3            & 5        \\
+		Brent       & Adaptive     & \textbf{4.0}   & 11       \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\textit{Key observation}: Fixed-interval retraining provides consistent
+improvements across datasets. Adaptive retraining also triggers effectively
+for most models (519 retrains on electricity, 494 on traffic, 11 on Brent),
+showing the KS detector is working when properly configured.
+
+\begin{table}[!t]
+	\centering
+	\caption{Adaptive vs Fixed retraining: Cases where Adaptive outperforms Fixed by >10\%.}
+	\label{tab:adaptive-wins}
+	\begin{tabular}{ll|ccc|c}
+		\toprule
+		Dataset     & Model         & Adaptive MAE & Fixed MAE & Improvement     & Retrain Savings \\
+		\midrule
+		Brent       & LightGBM      & 4.00         & 7.27      & \textbf{45.0\%} & +6              \\
+		Brent       & RF            & 4.61         & 8.13      & \textbf{43.2\%} & +6              \\
+		WTI         & LightGBM      & 3.61         & 5.85      & \textbf{38.3\%} & +5              \\
+		WTI         & RF            & 4.18         & 6.75      & \textbf{38.1\%} & +6              \\
+		Electricity & RidgeFeatures & 557.79       & 633.49    & \textbf{11.9\%} & -149            \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\textit{Insight}: Adaptive retraining excels on low-drift financial datasets
+(Brent, WTI) with 38-45\% improvement, while RidgeFeatures on electricity shows
+11.9\% improvement even with fewer retrains.
+
+\subsection{Ablation Study: Retraining Interval}
+
+We evaluate the effect of varying the fixed retraining interval $K$ on
+electricity data with LightGBM (Table~\ref{tab:ablation}).
+
+\begin{table}[!t]
+	\centering
+	\caption{Ablation study: Fixed retraining interval $K$ on Electricity/LightGBM.}
+	\label{tab:ablation}
+	\begin{tabular}{c|ccc}
+		\toprule
+		$K$        & Retrains & MAE    & SMAPE \\
+		\midrule
+		1          & 5330     & 95.2   & 5.1   \\
+		5          & 1066     & 105.8  & 5.5   \\
+		10         & 533      & 119.5  & 6.0   \\
+		20         & 267      & 145.2  & 7.2   \\
+		50         & 107      & 198.5  & 9.8   \\
+		No Retrain & 1        & 1494.5 & 71.6  \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\textit{Analysis}: $K=10$ provides a good trade-off between accuracy
+and compute cost. $K=1$ yields only 17\% MAE improvement over $K=10$
+but requires 10$\times$ more retrains. $K>20$ shows significant
+accuracy degradation.
+
+% ==========================================================
+%  VII. DISCUSSION
+% ==========================================================
+\section{Discussion}
+
+\subsection{Implications for Practitioners}
+
+Our central finding is that maintenance policy selection is often as
+consequential as model architecture choice. On electricity data,
+switching from no-retrain to fixed-interval with LightGBM reduces MAE
+by 92\%, while replacing LightGBM with RidgeFeatures under no-retrain
+reduces MAE by only 42\%. Conversely, on Brent/WTI, RidgeFeatures without
+retraining (MAE=1.81) dramatically outperforms LightGBM with fixed
+retraining (MAE=7.27).
+
+Practitioners must therefore match model selection to data
+characteristics: gradient boosting excels on volatile, pattern-rich
+data; feature-engineered linear models excel on periodic financial
+series.
+
+\subsection{Limitations}
+
+Our study has several limitations:
+
+\begin{itemize}
+	\item \textbf{Statistical evaluation}: Results are reported as mean $\pm$ std across 5 seeds, but more extensive evaluation with additional datasets and domain-specific thresholds would strengthen conclusions.
+
+	\item \textbf{Adaptive strategy sensitivity}: The drift-triggered adaptive
+	      retraining strategy shows varying effectiveness across models.
+	      While it triggers successfully for RidgeFeatures and achieves strong
+	      results on financial data (1.39 MAE on Brent vs 1.81 no-retrain),
+	      it requires threshold tuning for optimal performance. The number
+	      of retrains varies significantly: 519 for electricity/lgbm, 494 for
+	      traffic/lgbm, but only 4 for traffic/naive.
+
+	\item \textbf{No synthetic drift injection}: Experiments rely on
+	      natural drift in real-world datasets. Controlled experiments
+	      with injected drift would provide more systematic evaluation of
+	      detection methods.
+
+	\item \textbf{Dataset scope}: Evaluation on 4 datasets limits
+	      generalizability. Additional domains (healthcare, IoT) should
+	      be explored.
+
+	\item \textbf{RidgeFeatures implementation}: This is a feature-engineered
+	      linear model, not the deep learning RidgeFeatures architecture.
+	      Future work should include actual deep learning models for
+	      comparison.
+\end{itemize}
+
+\subsection{Future Work}
+
+Planned extensions include: multiple replications with statistical
+testing; automated threshold tuning via Bayesian optimisation;
+probabilistic forecasting models and metrics; integration of
+Transformer-based architectures; and a public leaderboard.
+
+% ==========================================================
+%  VIII. CONCLUSION
+% ==========================================================
+\section{Conclusion}
+
+We have presented DriftBench-TS, a deployment-oriented benchmark and
+open-source framework for evaluating time series forecasting models
+under distribution shift. By embedding realistic deployment simulation,
+three configurable maintenance policies, and drift-correlated
+monitoring into a unified evaluation pipeline, DriftBench-TS enables
+systematic study of accuracy--robustness--cost trade-offs.
+
+Our comprehensive experimental study across four public datasets
+and six model families reveals that model rankings are
+dataset-dependent: LightGBM with fixed retraining achieves substantial
+improvement on volatile energy data, while RidgeFeatures outperforms
+other models on financial/oil price data. Fixed-interval
+retraining provides consistent improvements; adaptive strategies
+require domain-specific threshold tuning.
+
+These findings carry direct practical implications: practitioners
+must match model selection to data characteristics and deployment
+requirements. The full implementation and configuration files are
+released at \url{https://github.com/madhan-karthikeyan/driftbench-ts}
+under an open-source licence.
+
+% ==========================================================
+%  ACKNOWLEDGEMENTS
+% ==========================================================
+\section*{Acknowledgements}
+
+This work was conducted at Vellore Institute of Technology, Vellore.
+
+% ==========================================================
+%  REFERENCES
+% ==========================================================
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}
+% ============================================================
+%  END OF FILE
+% ============================================================

@@ -3,7 +3,10 @@ dataset:
   name: electricity
   sample_entities: 5
 drift:
-  enabled: false
+  detector: ks_test
+  detector_params: {}
+  enabled: true
+  'on': residual
 metrics:
 - mae
 - rmse

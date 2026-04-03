@@ -3,23 +3,22 @@ dataset:
   name: brent
   sample_entities: 1
 drift:
-  enabled: false
+  detector: ks_test
+  detector_params: {}
+  enabled: true
+  'on': residual
 metrics:
 - mae
 - rmse
 - smape
 model:
   name: rf
-  params:
-    max_depth: 8
-    n_estimators: 50
-    n_lags: 3
-    random_state: 42
+  params: {}
 output:
   results_dir: results/brent/adaptive_retrain/rf
   save_metrics: true
   save_predictions: false
-  save_window_metrics: true
+  save_window_metrics: false
 retraining:
   consecutive_decay_rate: 0.5
   decay_consecutive: true

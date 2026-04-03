@@ -3,23 +3,22 @@ dataset:
   name: traffic
   sample_entities: 1
 drift:
-  enabled: false
+  detector: ks_test
+  detector_params: {}
+  enabled: true
+  'on': residual
 metrics:
 - mae
 - rmse
 - smape
 model:
   name: tsmixer
-  params:
-    epochs: 20
-    hidden_size: 32
-    input_len: 24
-    n_layers: 2
+  params: {}
 output:
   results_dir: results/traffic/adaptive_retrain/tsmixer
   save_metrics: true
   save_predictions: false
-  save_window_metrics: true
+  save_window_metrics: false
 retraining:
   consecutive_decay_rate: 0.5
   decay_consecutive: true

@@ -1,0 +1,110 @@
+{
+  "config": {
+    "dataset": {
+      "downsample_freq": "h",
+      "name": "electricity",
+      "sample_entities": 5
+    },
+    "drift": {
+      "detector": "ks_test",
+      "detector_params": {},
+      "enabled": true,
+      "on": "residual"
+    },
+    "metrics": [
+      "mae",
+      "rmse",
+      "smape"
+    ],
+    "model": {
+      "name": "naive",
+      "params": {
+        "random_state": 46
+      }
+    },
+    "output": {
+      "results_dir": "results/electricity/adaptive_retrain/naive",
+      "save_metrics": true,
+      "save_predictions": false,
+      "save_window_metrics": false
+    },
+    "retraining": {
+      "consecutive_decay_rate": 0.5,
+      "decay_consecutive": true,
+      "drift_threshold": 0.5,
+      "enabled": true,
+      "min_steps_between_retrain": 3,
+      "policy": "drift_triggered",
+      "require_consecutive": 2
+    },
+    "seed": 42,
+    "simulation": {
+      "forecast_horizon_hours": 24,
+      "history_window_days": 30,
+      "step_size_hours": 24
+    }
+  },
+  "seeds": [
+    42,
+    43,
+    44,
+    45,
+    46
+  ],
+  "n_successful": 5,
+  "statistics": {
+    "mae": {
+      "mean": 959.5809568480302,
+      "std": 1.2710574864626038e-13,
+      "min": 959.58095684803,
+      "max": 959.58095684803,
+      "values": [
+        959.58095684803,
+        959.58095684803,
+        959.58095684803,
+        959.58095684803,
+        959.58095684803
+      ]
+    },
+    "rmse": {
+      "mean": 1691.4784597366204,
+      "std": 2.5421149729252077e-13,
+      "min": 1691.4784597366206,
+      "max": 1691.4784597366206,
+      "values": [
+        1691.4784597366206,
+        1691.4784597366206,
+        1691.4784597366206,
+        1691.4784597366206,
+        1691.4784597366206
+      ]
+    },
+    "smape": {
+      "mean": 44.857685377986876,
+      "std": 0.0,
+      "min": 44.857685377986876,
+      "max": 44.857685377986876,
+      "values": [
+        44.857685377986876,
+        44.857685377986876,
+        44.857685377986876,
+        44.857685377986876,
+        44.857685377986876
+      ]
+    },
+    "total_retrains": {
+      "mean": 299.0,
+      "std": 0.0,
+      "min": "299",
+      "max": "299",
+      "values": [
+        299,
+        299,
+        299,
+        299,
+        299
+      ]
+    }
+  },
+  "timestamp": "2026-04-01T10:21:08.056529"
+}

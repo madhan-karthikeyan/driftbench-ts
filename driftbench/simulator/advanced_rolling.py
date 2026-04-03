@@ -277,22 +277,8 @@ class AdvancedRollingSimulator:
             drift_detected = False
             drift_score = 0.0
             
-            if self.retraining_simulator:
-                error_ma_window = self._compute_error_ma(all_entity_metrics)
-                
-                decision = self.retraining_simulator.should_retrain(
-                    step=self.current_step,
-                    drift_detected=drift_detected,
-                    drift_score=drift_score,
-                    error=error_ma_window,
-                    current_date=current_timestamp
-                )
-                
-                should_retrain = decision.should_retrain
-                retrain_reason = decision.reason
-                retrain_confidence = decision.confidence
-
-            if not self._initial_fit_done or should_retrain:
+            # Train model first (needed for predictions to compute residuals)
+            if not self._initial_fit_done:
                 self.model.fit(train_df)
                 self.model_fitted = True
                 self._initial_fit_done = True
@@ -312,6 +298,7 @@ class AdvancedRollingSimulator:
             
             all_residuals.extend(residuals.tolist())
             
+            # Detect drift BEFORE making retraining decision
             drift_detected, drift_score = self._detect_drift(
                 training_distribution=training_distribution,
                 incoming_data=residuals if self.detect_on == "residual" else acts,
@@ -320,6 +307,26 @@ class AdvancedRollingSimulator:
                 step=self.current_step,
                 timestamp=current_timestamp
             )
+            
+            # Now make retraining decision with actual drift detection
+            if self.retraining_simulator:
+                error_ma_window = self._compute_error_ma(all_entity_metrics)
+                
+                decision = self.retraining_simulator.should_retrain(
+                    step=self.current_step,
+                    drift_detected=drift_detected,
+                    drift_score=drift_score,
+                    error=error_ma_window,
+                    current_date=current_timestamp
+                )
+                
+                should_retrain = decision.should_retrain
+                retrain_reason = decision.reason
+                retrain_confidence = decision.confidence
+            
+            # Retrain if decision says so
+            if should_retrain:
+                self.model.fit(train_df)
             
             window_result = WindowResult(
                 step=self.current_step,

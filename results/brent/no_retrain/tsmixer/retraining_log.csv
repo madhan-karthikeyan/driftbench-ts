@@ -1,2 +1,2 @@
 step,timestamp,drift_detected,drift_score,error,reason,total_retrains
-0,1993-01-05,False,0.0,0.0,initial_training,0
+0,1993-01-05,True,1.1066562512571678,0.0,initial_training,0

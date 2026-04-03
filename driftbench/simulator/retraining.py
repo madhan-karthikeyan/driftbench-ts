@@ -289,20 +289,12 @@ class DriftTriggeredPolicy(BaseRetrainingPolicy):
         drift_score = current_state.drift_scores[-1] if current_state.drift_scores else 0.0
         score_triggers = drift_score > self.drift_threshold
 
-        if self._consecutive_drift_count >= self.require_consecutive and score_triggers:
+        if score_triggers and self._consecutive_drift_count >= self.require_consecutive:
             self._consecutive_drift_count = 0.0
             return RetrainingDecision(
                 should_retrain=True,
                 reason=f"drift_detected_consecutive_{int(self._consecutive_drift_count + 1)}_threshold_{drift_score:.3f}",
                 confidence=min(1.0, self._consecutive_drift_count / self.require_consecutive)
-            )
-
-        if score_triggers and self._consecutive_drift_count >= self.require_consecutive:
-            self._consecutive_drift_count = 0.0
-            return RetrainingDecision(
-                should_retrain=True,
-                reason=f"drift_score_threshold_exceeded_{drift_score:.3f}",
-                confidence=min(1.0, drift_score / (self.drift_threshold * 2))
             )
 
         return RetrainingDecision(

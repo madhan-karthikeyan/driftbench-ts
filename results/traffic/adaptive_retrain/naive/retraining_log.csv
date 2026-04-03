@@ -1,0 +1,5 @@
+step,timestamp,drift_detected,drift_score,error,reason,total_retrains
+7,2012-11-04 10:00:00,True,0.5408333333333334,1851.4083333333335,drift_detected_consecutive_1_threshold_0.541,0
+11,2012-11-07 15:00:00,True,0.5208333333333334,1768.775,drift_detected_consecutive_1_threshold_0.521,1
+15,2012-11-11 03:00:00,True,0.7,2384.2833333333338,drift_detected_consecutive_1_threshold_0.700,2
+19,2012-11-14 03:00:00,True,0.5186111111111111,3170.566666666667,drift_detected_consecutive_1_threshold_0.519,3

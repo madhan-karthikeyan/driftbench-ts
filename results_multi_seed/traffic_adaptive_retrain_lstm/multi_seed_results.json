@@ -1,0 +1,110 @@
+{
+  "config": {
+    "dataset": {
+      "downsample_freq": "h",
+      "name": "traffic",
+      "sample_entities": 1
+    },
+    "drift": {
+      "detector": "ks_test",
+      "detector_params": {},
+      "enabled": true,
+      "on": "residual"
+    },
+    "metrics": [
+      "mae",
+      "rmse",
+      "smape"
+    ],
+    "model": {
+      "name": "lstm",
+      "params": {
+        "random_state": 46
+      }
+    },
+    "output": {
+      "results_dir": "results/traffic/adaptive_retrain/lstm",
+      "save_metrics": true,
+      "save_predictions": false,
+      "save_window_metrics": false
+    },
+    "retraining": {
+      "consecutive_decay_rate": 0.5,
+      "decay_consecutive": true,
+      "drift_threshold": 0.5,
+      "enabled": true,
+      "min_steps_between_retrain": 3,
+      "policy": "drift_triggered",
+      "require_consecutive": 2
+    },
+    "seed": 42,
+    "simulation": {
+      "forecast_horizon_hours": 24,
+      "history_window_days": 30,
+      "step_size_hours": 24
+    }
+  },
+  "seeds": [
+    42,
+    43,
+    44,
+    45,
+    46
+  ],
+  "n_successful": 5,
+  "statistics": {
+    "mae": {
+      "mean": 2765.753929687896,
+      "std": 11.53552584345518,
+      "min": 2751.7447160518104,
+      "max": 2781.707303894162,
+      "values": [
+        2770.8934285018954,
+        2758.339010306759,
+        2766.085189684854,
+        2781.707303894162,
+        2751.7447160518104
+      ]
+    },
+    "rmse": {
+      "mean": 3371.6252458940407,
+      "std": 10.004138167866639,
+      "min": 3361.2247722309626,
+      "max": 3385.003518789786,
+      "values": [
+        3377.6622536436694,
+        3362.8690632367943,
+        3371.36662156899,
+        3385.003518789786,
+        3361.2247722309626
+      ]
+    },
+    "smape": {
+      "mean": 72.70284178618563,
+      "std": 0.14068265645159925,
+      "min": 72.52044584863948,
+      "max": 72.90387587654963,
+      "values": [
+        72.7443708083688,
+        72.64154320528449,
+        72.7039731920857,
+        72.90387587654963,
+        72.52044584863948
+      ]
+    },
+    "total_retrains": {
+      "mean": 494.0,
+      "std": 0.0,
+      "min": "494",
+      "max": "494",
+      "values": [
+        494,
+        494,
+        494,
+        494,
+        494
+      ]
+    }
+  },
+  "timestamp": "2026-04-01T12:36:11.468152"
+}

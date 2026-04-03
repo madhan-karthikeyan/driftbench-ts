@@ -1,0 +1,107 @@
+{
+  "config": {
+    "dataset": {
+      "downsample_freq": "h",
+      "name": "traffic",
+      "sample_entities": 1
+    },
+    "drift": {
+      "enabled": false
+    },
+    "metrics": [
+      "mae",
+      "rmse",
+      "smape"
+    ],
+    "model": {
+      "name": "lstm",
+      "params": {
+        "epochs": 20,
+        "hidden_size": 32,
+        "num_layers": 2,
+        "sequence_length": 24,
+        "random_state": 46
+      }
+    },
+    "output": {
+      "results_dir": "results/traffic/no_retrain/lstm",
+      "save_metrics": true,
+      "save_predictions": false,
+      "save_window_metrics": true
+    },
+    "retraining": {
+      "enabled": true,
+      "min_steps_between_retrain": 999999,
+      "policy": "no_retraining"
+    },
+    "seed": 42,
+    "simulation": {
+      "forecast_horizon_hours": 24,
+      "history_window_days": 30,
+      "step_size_hours": 24
+    }
+  },
+  "seeds": [
+    42,
+    43,
+    44,
+    45,
+    46
+  ],
+  "n_successful": 5,
+  "statistics": {
+    "mae": {
+      "mean": 2937.626693235944,
+      "std": 547.7468164096226,
+      "min": 2423.4033928501035,
+      "max": 3655.654664112596,
+      "values": [
+        2648.49608272089,
+        3655.654664112596,
+        2572.3192219356824,
+        3388.260104560448,
+        2423.4033928501035
+      ]
+    },
+    "rmse": {
+      "mean": 3502.886850382844,
+      "std": 506.4388996867013,
+      "min": 3014.1471620761704,
+      "max": 4159.964051253261,
+      "values": [
+        3250.040012532076,
+        4159.964051253261,
+        3165.7986145872696,
+        3924.4844114654425,
+        3014.1471620761704
+      ]
+    },
+    "smape": {
+      "mean": 74.80331254499454,
+      "std": 6.465792224422494,
+      "min": 68.64528999714899,
+      "max": 83.17648704112285,
+      "values": [
+        71.40750168556933,
+        83.17648704112285,
+        70.5477120387317,
+        80.23957196239976,
+        68.64528999714899
+      ]
+    },
+    "total_retrains": {
+      "mean": 1.0,
+      "std": 0.0,
+      "min": "1",
+      "max": "1",
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    }
+  },
+  "timestamp": "2026-04-01T13:08:19.277810"
+}

@@ -344,7 +344,18 @@ function InsightCard({ icon, label, value, subtext }) {
 }
 
 function InsightInsightCard({ icon, label, value, subtext }) {
-  return InsightCard({ icon, label, value, subtext })
+  return (
+    <div className="card">
+      <div className="flex items-center gap-3">
+        {icon}
+        <div>
+          <div className="text-2xl font-bold text-white">{value}</div>
+          <div className="text-sm text-slate-400">{label}</div>
+          {subtext && <div className="text-xs text-slate-500">{subtext}</div>}
+        </div>
+      </div>
+    </div>
+  )
 }
 
 // Analysis functions

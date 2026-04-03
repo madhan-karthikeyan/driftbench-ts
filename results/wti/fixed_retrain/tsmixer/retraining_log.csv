@@ -1,6 +1,6 @@
 step,timestamp,drift_detected,drift_score,error,reason,total_retrains
-0,1992-12-29,False,0.0,0.0,fixed_schedule_every_10_steps,0
-10,1999-09-01,False,0.0,3.304547619047619,fixed_schedule_every_10_steps,1
-20,2006-05-22,False,0.0,23.604595238095236,fixed_schedule_every_10_steps,2
-30,2013-01-23,False,0.0,19.951678571428573,fixed_schedule_every_10_steps,3
-40,2019-10-01,False,0.0,40.26751190476191,fixed_schedule_every_10_steps,4
+0,1992-12-29,True,1.1333181697356347,0.0,fixed_schedule_every_10_steps,0
+10,1999-09-01,False,0.04015826443974535,0.766783470607397,fixed_schedule_every_10_steps,1
+20,2006-05-22,False,0.11895549923862926,1.1277039392145771,fixed_schedule_every_10_steps,2
+30,2013-01-23,False,0.026432419497163163,1.3626526342423568,fixed_schedule_every_10_steps,3
+40,2019-10-01,False,0.028493174060002974,2.06557438812572,fixed_schedule_every_10_steps,4

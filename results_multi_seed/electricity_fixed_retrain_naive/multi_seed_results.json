@@ -1,0 +1,104 @@
+{
+  "config": {
+    "dataset": {
+      "downsample_freq": "h",
+      "name": "electricity",
+      "sample_entities": 5
+    },
+    "drift": {
+      "enabled": false
+    },
+    "metrics": [
+      "mae",
+      "rmse",
+      "smape"
+    ],
+    "model": {
+      "name": "naive",
+      "params": {
+        "random_state": 46
+      }
+    },
+    "output": {
+      "results_dir": "results/electricity/fixed_retrain/naive",
+      "save_metrics": true,
+      "save_predictions": false,
+      "save_window_metrics": true
+    },
+    "retraining": {
+      "enabled": true,
+      "min_steps_between_retrain": 1,
+      "policy": "fixed_schedule",
+      "retrain_every_n_steps": 10
+    },
+    "seed": 42,
+    "simulation": {
+      "forecast_horizon_hours": 24,
+      "history_window_days": 30,
+      "step_size_hours": 24
+    }
+  },
+  "seeds": [
+    42,
+    43,
+    44,
+    45,
+    46
+  ],
+  "n_successful": 5,
+  "statistics": {
+    "mae": {
+      "mean": 926.3639931207005,
+      "std": 0.0,
+      "min": 926.3639931207005,
+      "max": 926.3639931207005,
+      "values": [
+        926.3639931207005,
+        926.3639931207005,
+        926.3639931207005,
+        926.3639931207005,
+        926.3639931207005
+      ]
+    },
+    "rmse": {
+      "mean": 1704.6235685877223,
+      "std": 2.5421149729252077e-13,
+      "min": 1704.623568587722,
+      "max": 1704.623568587722,
+      "values": [
+        1704.623568587722,
+        1704.623568587722,
+        1704.623568587722,
+        1704.623568587722,
+        1704.623568587722
+      ]
+    },
+    "smape": {
+      "mean": 43.64191828997983,
+      "std": 0.0,
+      "min": 43.64191828997983,
+      "max": 43.64191828997983,
+      "values": [
+        43.64191828997983,
+        43.64191828997983,
+        43.64191828997983,
+        43.64191828997983,
+        43.64191828997983
+      ]
+    },
+    "total_retrains": {
+      "mean": 533.0,
+      "std": 0.0,
+      "min": "533",
+      "max": "533",
+      "values": [
+        533,
+        533,
+        533,
+        533,
+        533
+      ]
+    }
+  },
+  "timestamp": "2026-04-01T11:19:43.616895"
+}

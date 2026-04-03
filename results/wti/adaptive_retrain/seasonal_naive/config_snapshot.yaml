@@ -3,7 +3,10 @@ dataset:
   name: wti
   sample_entities: 1
 drift:
-  enabled: false
+  detector: ks_test
+  detector_params: {}
+  enabled: true
+  'on': residual
 metrics:
 - mae
 - rmse
@@ -12,12 +15,11 @@ model:
   name: seasonal_naive
   params:
     random_state: 42
-    season_length: 24
 output:
   results_dir: results/wti/adaptive_retrain/seasonal_naive
   save_metrics: true
   save_predictions: false
-  save_window_metrics: true
+  save_window_metrics: false
 retraining:
   consecutive_decay_rate: 0.5
   decay_consecutive: true

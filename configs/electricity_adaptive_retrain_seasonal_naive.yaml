@@ -3,20 +3,22 @@ dataset:
   name: electricity
   sample_entities: 5
 drift:
-  enabled: false
+  detector: ks_test
+  detector_params: {}
+  enabled: true
+  'on': residual
 metrics:
 - mae
 - rmse
 - smape
 model:
   name: seasonal_naive
-  params:
-    season_length: 24
+  params: {}
 output:
   results_dir: results/electricity/adaptive_retrain/seasonal_naive
   save_metrics: true
   save_predictions: false
-  save_window_metrics: true
+  save_window_metrics: false
 retraining:
   consecutive_decay_rate: 0.5
   decay_consecutive: true

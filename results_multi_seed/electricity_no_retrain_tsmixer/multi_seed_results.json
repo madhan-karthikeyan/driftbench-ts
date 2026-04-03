@@ -1,0 +1,107 @@
+{
+  "config": {
+    "dataset": {
+      "downsample_freq": "h",
+      "name": "electricity",
+      "sample_entities": 5
+    },
+    "drift": {
+      "enabled": false
+    },
+    "metrics": [
+      "mae",
+      "rmse",
+      "smape"
+    ],
+    "model": {
+      "name": "tsmixer",
+      "params": {
+        "epochs": 20,
+        "hidden_size": 32,
+        "input_len": 24,
+        "n_layers": 2,
+        "random_state": 46
+      }
+    },
+    "output": {
+      "results_dir": "results/electricity/no_retrain/tsmixer",
+      "save_metrics": true,
+      "save_predictions": false,
+      "save_window_metrics": true
+    },
+    "retraining": {
+      "enabled": true,
+      "min_steps_between_retrain": 999999,
+      "policy": "no_retraining"
+    },
+    "seed": 42,
+    "simulation": {
+      "forecast_horizon_hours": 24,
+      "history_window_days": 30,
+      "step_size_hours": 24
+    }
+  },
+  "seeds": [
+    42,
+    43,
+    44,
+    45,
+    46
+  ],
+  "n_successful": 5,
+  "statistics": {
+    "mae": {
+      "mean": 872.2705115114737,
+      "std": 0.0,
+      "min": 872.2705115114737,
+      "max": 872.2705115114737,
+      "values": [
+        872.2705115114737,
+        872.2705115114737,
+        872.2705115114737,
+        872.2705115114737,
+        872.2705115114737
+      ]
+    },
+    "rmse": {
+      "mean": 1439.925810698109,
+      "std": 0.0,
+      "min": 1439.925810698109,
+      "max": 1439.925810698109,
+      "values": [
+        1439.925810698109,
+        1439.925810698109,
+        1439.925810698109,
+        1439.925810698109,
+        1439.925810698109
+      ]
+    },
+    "smape": {
+      "mean": 42.30410408147199,
+      "std": 0.0,
+      "min": 42.30410408147199,
+      "max": 42.30410408147199,
+      "values": [
+        42.30410408147199,
+        42.30410408147199,
+        42.30410408147199,
+        42.30410408147199,
+        42.30410408147199
+      ]
+    },
+    "total_retrains": {
+      "mean": 1.0,
+      "std": 0.0,
+      "min": "1",
+      "max": "1",
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    }
+  },
+  "timestamp": "2026-04-01T12:02:53.914185"
+}

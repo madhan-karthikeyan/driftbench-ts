@@ -1,0 +1,12 @@
+step,timestamp,drift_detected,drift_score,error,reason,total_retrains
+3,1995-01-04,True,1.0,0.24340594849141725,drift_detected_consecutive_1_threshold_1.000,0
+7,1997-09-04,True,1.0,0.3352099274021259,drift_detected_consecutive_1_threshold_1.000,1
+11,2000-05-10,True,0.9908333333333333,0.9364609918727002,drift_detected_consecutive_1_threshold_0.991,2
+15,2002-12-23,True,0.995,1.6679734594564852,drift_detected_consecutive_1_threshold_0.995,3
+19,2005-08-01,True,0.765,4.965816009478361,drift_detected_consecutive_1_threshold_0.765,4
+23,2008-03-27,True,0.7794444444444445,17.909903028687204,drift_detected_consecutive_1_threshold_0.779,5
+27,2010-11-23,True,0.7940277777777778,16.82039639355847,drift_detected_consecutive_1_threshold_0.794,6
+31,2013-08-05,True,0.995,3.4053613693347664,drift_detected_consecutive_1_threshold_0.995,7
+35,2016-03-29,True,1.0,1.8236469977906917,drift_detected_consecutive_1_threshold_1.000,8
+39,2018-11-12,True,1.0,1.5617547271788284,drift_detected_consecutive_1_threshold_1.000,9
+43,2021-07-07,True,1.0,1.8392377389286743,drift_detected_consecutive_1_threshold_1.000,10

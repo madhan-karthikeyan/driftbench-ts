@@ -1,0 +1,107 @@
+{
+  "config": {
+    "dataset": {
+      "downsample_freq": "w",
+      "name": "wti",
+      "sample_entities": 1
+    },
+    "drift": {
+      "enabled": false
+    },
+    "metrics": [
+      "mae",
+      "rmse",
+      "smape"
+    ],
+    "model": {
+      "name": "tsmixer",
+      "params": {
+        "epochs": 20,
+        "hidden_size": 32,
+        "input_len": 24,
+        "n_layers": 2,
+        "random_state": 46
+      }
+    },
+    "output": {
+      "results_dir": "results/wti/no_retrain/tsmixer",
+      "save_metrics": true,
+      "save_predictions": false,
+      "save_window_metrics": true
+    },
+    "retraining": {
+      "enabled": true,
+      "min_steps_between_retrain": 999999,
+      "policy": "no_retraining"
+    },
+    "seed": 42,
+    "simulation": {
+      "forecast_horizon_hours": 168,
+      "history_window_days": 60,
+      "step_size_hours": 168
+    }
+  },
+  "seeds": [
+    42,
+    43,
+    44,
+    45,
+    46
+  ],
+  "n_successful": 5,
+  "statistics": {
+    "mae": {
+      "mean": 1.8721115159755883,
+      "std": 0.0,
+      "min": 1.8721115159755883,
+      "max": 1.8721115159755883,
+      "values": [
+        1.8721115159755883,
+        1.8721115159755883,
+        1.8721115159755883,
+        1.8721115159755883,
+        1.8721115159755883
+      ]
+    },
+    "rmse": {
+      "mean": 4.087839281848254,
+      "std": 0.0,
+      "min": 4.087839281848254,
+      "max": 4.087839281848254,
+      "values": [
+        4.087839281848254,
+        4.087839281848254,
+        4.087839281848254,
+        4.087839281848254,
+        4.087839281848254
+      ]
+    },
+    "smape": {
+      "mean": 4.08414738781624,
+      "std": 0.0,
+      "min": 4.08414738781624,
+      "max": 4.08414738781624,
+      "values": [
+        4.08414738781624,
+        4.08414738781624,
+        4.08414738781624,
+        4.08414738781624,
+        4.08414738781624
+      ]
+    },
+    "total_retrains": {
+      "mean": 1.0,
+      "std": 0.0,
+      "min": "1",
+      "max": "1",
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    }
+  },
+  "timestamp": "2026-04-01T13:17:33.982515"
+}

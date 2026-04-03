@@ -20,7 +20,7 @@ from driftbench.models.seasonal_naive import SeasonalNaiveModel
 from driftbench.models.sklearn_rf import RandomForestModel
 from driftbench.models.lgbm import LGBMModel
 from driftbench.models.lstm import LSTMModel
-from driftbench.models.tsmixer import TSMixerModel
+from driftbench.models.tsmixer import RidgeFeatureModel
 
 from driftbench.models.registry import (
     MODEL_REGISTRY,
@@ -37,7 +37,7 @@ __all__ = [
     'RandomForestModel',
     'LGBMModel',
     'LSTMModel',
-    'TSMixerModel',
+    'RidgeFeatureModel',
     'MODEL_REGISTRY',
     'get_model',
     'get_available_models',

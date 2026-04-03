@@ -23,6 +23,7 @@ from driftbench.drift.base_detector import (
     DriftDetectionResult,
     DetectorType
 )
+from driftbench.drift.psi import PSIDriftDetector
 
 
 class ADWINDetector(BaseDriftDetector):
@@ -953,7 +954,7 @@ def create_detector(
     Parameters
     ----------
     detector_type : str
-        Type of detector: 'adwin', 'page_hinkley', 'ks_test', 'wasserstein', 'residual_ks', 'cusum'.
+        Type of detector: 'adwin', 'page_hinkley', 'ks_test', 'wasserstein', 'residual_ks', 'cusum', 'psi'.
     mode : str
         Detection mode: 'feature', 'residual', 'embedding'.
     **kwargs
@@ -974,6 +975,7 @@ def create_detector(
         'residual_ks': ResidualKSTestDetector,
         'residual-ks': ResidualKSTestDetector,
         'cusum': CUSUMDetector,
+        'psi': PSIDriftDetector,
     }
 
     detector_type_lower = detector_type.lower()

@@ -1,0 +1,108 @@
+{
+  "config": {
+    "dataset": {
+      "downsample_freq": "w",
+      "name": "brent",
+      "sample_entities": 1
+    },
+    "drift": {
+      "enabled": false
+    },
+    "metrics": [
+      "mae",
+      "rmse",
+      "smape"
+    ],
+    "model": {
+      "name": "lstm",
+      "params": {
+        "epochs": 20,
+        "hidden_size": 32,
+        "num_layers": 2,
+        "sequence_length": 24,
+        "random_state": 46
+      }
+    },
+    "output": {
+      "results_dir": "results/brent/fixed_retrain/lstm",
+      "save_metrics": true,
+      "save_predictions": false,
+      "save_window_metrics": true
+    },
+    "retraining": {
+      "enabled": true,
+      "min_steps_between_retrain": 1,
+      "policy": "fixed_schedule",
+      "retrain_every_n_steps": 10
+    },
+    "seed": 42,
+    "simulation": {
+      "forecast_horizon_hours": 168,
+      "history_window_days": 60,
+      "step_size_hours": 168
+    }
+  },
+  "seeds": [
+    42,
+    43,
+    44,
+    45,
+    46
+  ],
+  "n_successful": 5,
+  "statistics": {
+    "mae": {
+      "mean": 38.87026764751931,
+      "std": 1.9215036654444209,
+      "min": 35.71926861763678,
+      "max": 40.757574994781166,
+      "values": [
+        35.71926861763678,
+        39.56481903852692,
+        39.71769633034773,
+        40.757574994781166,
+        38.59197925630396
+      ]
+    },
+    "rmse": {
+      "mean": 50.83413578020564,
+      "std": 3.4770698978195482,
+      "min": 45.144241222625254,
+      "max": 54.3922139660253,
+      "values": [
+        45.144241222625254,
+        51.41458356486259,
+        52.554528485719494,
+        54.3922139660253,
+        50.66511166179556
+      ]
+    },
+    "smape": {
+      "mean": 58.93826678509239,
+      "std": 0.9532052943870489,
+      "min": 57.79904039268921,
+      "max": 60.146276667431785,
+      "values": [
+        57.79904039268921,
+        60.146276667431785,
+        59.28623191714719,
+        59.30840662427852,
+        58.15137832391524
+      ]
+    },
+    "total_retrains": {
+      "mean": 5.0,
+      "std": 0.0,
+      "min": "5",
+      "max": "5",
+      "values": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ]
+    }
+  },
+  "timestamp": "2026-04-01T09:39:32.215702"
+}

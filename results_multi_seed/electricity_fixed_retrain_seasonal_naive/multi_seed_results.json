@@ -1,0 +1,105 @@
+{
+  "config": {
+    "dataset": {
+      "downsample_freq": "h",
+      "name": "electricity",
+      "sample_entities": 5
+    },
+    "drift": {
+      "enabled": false
+    },
+    "metrics": [
+      "mae",
+      "rmse",
+      "smape"
+    ],
+    "model": {
+      "name": "seasonal_naive",
+      "params": {
+        "season_length": 24,
+        "random_state": 46
+      }
+    },
+    "output": {
+      "results_dir": "results/electricity/fixed_retrain/seasonal_naive",
+      "save_metrics": true,
+      "save_predictions": false,
+      "save_window_metrics": true
+    },
+    "retraining": {
+      "enabled": true,
+      "min_steps_between_retrain": 1,
+      "policy": "fixed_schedule",
+      "retrain_every_n_steps": 10
+    },
+    "seed": 42,
+    "simulation": {
+      "forecast_horizon_hours": 24,
+      "history_window_days": 30,
+      "step_size_hours": 24
+    }
+  },
+  "seeds": [
+    42,
+    43,
+    44,
+    45,
+    46
+  ],
+  "n_successful": 5,
+  "statistics": {
+    "mae": {
+      "mean": 259.1578408380238,
+      "std": 0.0,
+      "min": 259.1578408380238,
+      "max": 259.1578408380238,
+      "values": [
+        259.1578408380238,
+        259.1578408380238,
+        259.1578408380238,
+        259.1578408380238,
+        259.1578408380238
+      ]
+    },
+    "rmse": {
+      "mean": 553.3836941662115,
+      "std": 0.0,
+      "min": 553.3836941662115,
+      "max": 553.3836941662115,
+      "values": [
+        553.3836941662115,
+        553.3836941662115,
+        553.3836941662115,
+        553.3836941662115,
+        553.3836941662115
+      ]
+    },
+    "smape": {
+      "mean": 12.778539843928161,
+      "std": 0.0,
+      "min": 12.778539843928161,
+      "max": 12.778539843928161,
+      "values": [
+        12.778539843928161,
+        12.778539843928161,
+        12.778539843928161,
+        12.778539843928161,
+        12.778539843928161
+      ]
+    },
+    "total_retrains": {
+      "mean": 533.0,
+      "std": 0.0,
+      "min": "533",
+      "max": "533",
+      "values": [
+        533,
+        533,
+        533,
+        533,
+        533
+      ]
+    }
+  },
+  "timestamp": "2026-04-01T11:31:15.599596"
+}

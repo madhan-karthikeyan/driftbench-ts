@@ -1,0 +1,103 @@
+{
+  "config": {
+    "dataset": {
+      "downsample_freq": "h",
+      "name": "traffic",
+      "sample_entities": 1
+    },
+    "drift": {
+      "enabled": false
+    },
+    "metrics": [
+      "mae",
+      "rmse",
+      "smape"
+    ],
+    "model": {
+      "name": "naive",
+      "params": {
+        "random_state": 46
+      }
+    },
+    "output": {
+      "results_dir": "results/traffic/no_retrain/naive",
+      "save_metrics": true,
+      "save_predictions": false,
+      "save_window_metrics": true
+    },
+    "retraining": {
+      "enabled": true,
+      "min_steps_between_retrain": 999999,
+      "policy": "no_retraining"
+    },
+    "seed": 42,
+    "simulation": {
+      "forecast_horizon_hours": 24,
+      "history_window_days": 30,
+      "step_size_hours": 24
+    }
+  },
+  "seeds": [
+    42,
+    43,
+    44,
+    45,
+    46
+  ],
+  "n_successful": 5,
+  "statistics": {
+    "mae": {
+      "mean": 1744.5208543983822,
+      "std": 0.0,
+      "min": 1744.5208543983822,
+      "max": 1744.5208543983822,
+      "values": [
+        1744.5208543983822,
+        1744.5208543983822,
+        1744.5208543983822,
+        1744.5208543983822,
+        1744.5208543983822
+      ]
+    },
+    "rmse": {
+      "mean": 1986.0409853632514,
+      "std": 2.5421149729252077e-13,
+      "min": 1986.0409853632516,
+      "max": 1986.0409853632516,
+      "values": [
+        1986.0409853632516,
+        1986.0409853632516,
+        1986.0409853632516,
+        1986.0409853632516,
+        1986.0409853632516
+      ]
+    },
+    "smape": {
+      "mean": 63.4028847601669,
+      "std": 0.0,
+      "min": 63.4028847601669,
+      "max": 63.4028847601669,
+      "values": [
+        63.4028847601669,
+        63.4028847601669,
+        63.4028847601669,
+        63.4028847601669,
+        63.4028847601669
+      ]
+    },
+    "total_retrains": {
+      "mean": 1.0,
+      "std": 0.0,
+      "min": "1",
+      "max": "1",
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    }
+  },
+  "timestamp": "2026-04-01T13:08:26.885452"
+}

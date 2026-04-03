@@ -17,9 +17,11 @@ class DetectorType(Enum):
     """Enumeration of available detector types."""
     ADWIN = "adwin"
     PAGE_HINKLEY = "page_hinkley"
+    CUSUM = "cusum"
     KS_TEST = "ks_test"
     WASSERSTEIN = "wasserstein"
     RESIDUAL_KS = "residual_ks"
+    PSI = "psi"
 
 
 class DetectionMode(Enum):

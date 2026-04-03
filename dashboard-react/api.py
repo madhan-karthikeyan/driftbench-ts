@@ -73,6 +73,8 @@ class ResultLoader:
     def get_all_runs(self):
         """Get all experiment runs."""
         runs = []
+        if not self.results_dir.exists():
+            return runs
         for dataset_dir in self.results_dir.iterdir():
             if not dataset_dir.is_dir():
                 continue
@@ -142,11 +144,28 @@ def get_results():
         model_maes[model] = avg_mae
     best_model = min(model_maes, key=model_maes.get)
     
+    # Best per dataset
+    best_per_dataset = []
+    for dataset in datasets:
+        dataset_runs = [r for r in runs if r['dataset'] == dataset]
+        if dataset_runs:
+            best = min(dataset_runs, key=lambda r: r['metrics'].get('mae', float('inf')))
+            worst = max(dataset_runs, key=lambda r: r['metrics'].get('mae', 0))
+            best_per_dataset.append({
+                'dataset': dataset,
+                'best_strategy': best['strategy'],
+                'best_model': best['model'],
+                'best_mae': best['metrics'].get('mae', 0),
+                'improvement': ((worst['metrics'].get('mae', 0) - best['metrics'].get('mae', 0)) 
+                              / worst['metrics'].get('mae', 1) * 100) if worst['metrics'].get('mae', 0) > 0 else 0
+            })
+    
     return jsonify({
         'runs': runs,
         'datasets': sorted(datasets),
         'models': sorted(models),
         'strategies': ['no_retrain', 'fixed_retrain', 'adaptive_retrain'],
+        'best_per_dataset': best_per_dataset,
         'summary': {
             'total_runs': len(runs),
             'total_datasets': len(datasets),
@@ -258,6 +277,7 @@ def get_comparison():
                         'model': model,
                         'mae': run['metrics'].get('mae', 0),
                         'rmse': run['metrics'].get('rmse', 0),
+                        'smape': run['metrics'].get('smape', 0),
                         'retrains': run['metrics'].get('retrain_total', 0),
                         'drift_rate': run['metrics'].get('drift_detection_rate', 0),
                     })
@@ -379,18 +399,19 @@ def serve_static(path):
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description='DriftBench-TS API Server')
-    parser.add_argument('--results', '-r', default='results', help='Results directory')
+    parser.add_argument('--results', '-r', default=str(BASE_DIR / 'results'), help='Results directory')
     parser.add_argument('--port', '-p', type=int, default=5001, help='Port')
     parser.add_argument('--host', default='127.0.0.1', help='Host')
     args = parser.parse_args()
     
-    app.config['RESULTS_DIR'] = args.results
-    loader = ResultLoader(args.results)
+    results_path = Path(args.results).resolve()
+    app.config['RESULTS_DIR'] = str(results_path)
+    loader = ResultLoader(results_path)
     
     print(f"\n{'='*60}")
     print("DriftBench-TS API Server")
     print(f"{'='*60}")
-    print(f"Results: {args.results}")
+    print(f"Results: {results_path}")
     print(f"API: http://{args.host}:{args.port}/api")
     print(f"{'='*60}\n")
     

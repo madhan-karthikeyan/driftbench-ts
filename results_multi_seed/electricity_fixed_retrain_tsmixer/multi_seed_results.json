@@ -1,0 +1,108 @@
+{
+  "config": {
+    "dataset": {
+      "downsample_freq": "h",
+      "name": "electricity",
+      "sample_entities": 5
+    },
+    "drift": {
+      "enabled": false
+    },
+    "metrics": [
+      "mae",
+      "rmse",
+      "smape"
+    ],
+    "model": {
+      "name": "tsmixer",
+      "params": {
+        "epochs": 20,
+        "hidden_size": 32,
+        "input_len": 24,
+        "n_layers": 2,
+        "random_state": 46
+      }
+    },
+    "output": {
+      "results_dir": "results/electricity/fixed_retrain/tsmixer",
+      "save_metrics": true,
+      "save_predictions": false,
+      "save_window_metrics": true
+    },
+    "retraining": {
+      "enabled": true,
+      "min_steps_between_retrain": 1,
+      "policy": "fixed_schedule",
+      "retrain_every_n_steps": 10
+    },
+    "seed": 42,
+    "simulation": {
+      "forecast_horizon_hours": 24,
+      "history_window_days": 30,
+      "step_size_hours": 24
+    }
+  },
+  "seeds": [
+    42,
+    43,
+    44,
+    45,
+    46
+  ],
+  "n_successful": 5,
+  "statistics": {
+    "mae": {
+      "mean": 633.4851987237593,
+      "std": 0.0,
+      "min": 633.4851987237593,
+      "max": 633.4851987237593,
+      "values": [
+        633.4851987237593,
+        633.4851987237593,
+        633.4851987237593,
+        633.4851987237593,
+        633.4851987237593
+      ]
+    },
+    "rmse": {
+      "mean": 1160.6185901642189,
+      "std": 0.0,
+      "min": 1160.6185901642189,
+      "max": 1160.6185901642189,
+      "values": [
+        1160.6185901642189,
+        1160.6185901642189,
+        1160.6185901642189,
+        1160.6185901642189,
+        1160.6185901642189
+      ]
+    },
+    "smape": {
+      "mean": 26.529281590230188,
+      "std": 0.0,
+      "min": 26.529281590230188,
+      "max": 26.529281590230188,
+      "values": [
+        26.529281590230188,
+        26.529281590230188,
+        26.529281590230188,
+        26.529281590230188,
+        26.529281590230188
+      ]
+    },
+    "total_retrains": {
+      "mean": 533.0,
+      "std": 0.0,
+      "min": "533",
+      "max": "533",
+      "values": [
+        533,
+        533,
+        533,
+        533,
+        533
+      ]
+    }
+  },
+  "timestamp": "2026-04-01T11:38:32.268717"
+}

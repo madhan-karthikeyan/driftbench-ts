@@ -1,0 +1,106 @@
+{
+  "config": {
+    "dataset": {
+      "downsample_freq": "w",
+      "name": "brent",
+      "sample_entities": 1
+    },
+    "drift": {
+      "enabled": false
+    },
+    "metrics": [
+      "mae",
+      "rmse",
+      "smape"
+    ],
+    "model": {
+      "name": "rf",
+      "params": {
+        "max_depth": 8,
+        "n_estimators": 50,
+        "n_lags": 3,
+        "random_state": 46
+      }
+    },
+    "output": {
+      "results_dir": "results/brent/no_retrain/rf",
+      "save_metrics": true,
+      "save_predictions": false,
+      "save_window_metrics": true
+    },
+    "retraining": {
+      "enabled": true,
+      "min_steps_between_retrain": 999999,
+      "policy": "no_retraining"
+    },
+    "seed": 42,
+    "simulation": {
+      "forecast_horizon_hours": 168,
+      "history_window_days": 60,
+      "step_size_hours": 168
+    }
+  },
+  "seeds": [
+    42,
+    43,
+    44,
+    45,
+    46
+  ],
+  "n_successful": 5,
+  "statistics": {
+    "mae": {
+      "mean": 21.676174883874392,
+      "std": 0.17497098959380877,
+      "min": 21.464115945001204,
+      "max": 21.92707169484627,
+      "values": [
+        21.60018956882494,
+        21.63119763712816,
+        21.464115945001204,
+        21.92707169484627,
+        21.758299573571406
+      ]
+    },
+    "rmse": {
+      "mean": 33.601038768294394,
+      "std": 0.19078796517454058,
+      "min": 33.37696978532643,
+      "max": 33.87858979739141,
+      "values": [
+        33.50716450061363,
+        33.55516459896219,
+        33.37696978532643,
+        33.87858979739141,
+        33.6873051591783
+      ]
+    },
+    "smape": {
+      "mean": 35.74599188660585,
+      "std": 0.4240397841050642,
+      "min": 35.205001066275734,
+      "max": 36.338791905746575,
+      "values": [
+        35.59828364722294,
+        35.63783249191941,
+        35.205001066275734,
+        36.338791905746575,
+        35.950050321864595
+      ]
+    },
+    "total_retrains": {
+      "mean": 1.0,
+      "std": 0.0,
+      "min": "1",
+      "max": "1",
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    }
+  },
+  "timestamp": "2026-04-01T09:40:13.656955"
+}

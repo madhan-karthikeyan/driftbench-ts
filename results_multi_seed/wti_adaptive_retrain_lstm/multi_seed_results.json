@@ -1,0 +1,110 @@
+{
+  "config": {
+    "dataset": {
+      "downsample_freq": "w",
+      "name": "wti",
+      "sample_entities": 1
+    },
+    "drift": {
+      "detector": "ks_test",
+      "detector_params": {},
+      "enabled": true,
+      "on": "residual"
+    },
+    "metrics": [
+      "mae",
+      "rmse",
+      "smape"
+    ],
+    "model": {
+      "name": "lstm",
+      "params": {
+        "random_state": 46
+      }
+    },
+    "output": {
+      "results_dir": "results/wti/adaptive_retrain/lstm",
+      "save_metrics": true,
+      "save_predictions": false,
+      "save_window_metrics": false
+    },
+    "retraining": {
+      "consecutive_decay_rate": 0.5,
+      "decay_consecutive": true,
+      "drift_threshold": 0.5,
+      "enabled": true,
+      "min_steps_between_retrain": 3,
+      "policy": "drift_triggered",
+      "require_consecutive": 2
+    },
+    "seed": 42,
+    "simulation": {
+      "forecast_horizon_hours": 168,
+      "history_window_days": 60,
+      "step_size_hours": 168
+    }
+  },
+  "seeds": [
+    42,
+    43,
+    44,
+    45,
+    46
+  ],
+  "n_successful": 5,
+  "statistics": {
+    "mae": {
+      "mean": 37.28943673943728,
+      "std": 0.7885671360949765,
+      "min": 36.438822097008966,
+      "max": 38.4429284794516,
+      "values": [
+        37.69685922621451,
+        38.4429284794516,
+        37.020913201406415,
+        36.847660693104906,
+        36.438822097008966
+      ]
+    },
+    "rmse": {
+      "mean": 47.236546942104816,
+      "std": 0.9931941176432614,
+      "min": 46.068902901632455,
+      "max": 48.671001023979876,
+      "values": [
+        47.65748719611717,
+        48.671001023979876,
+        47.128252111016,
+        46.657091477778586,
+        46.068902901632455
+      ]
+    },
+    "smape": {
+      "mean": 55.161470845992994,
+      "std": 0.7023632003216459,
+      "min": 54.22265420468669,
+      "max": 56.141992901808294,
+      "values": [
+        55.42731470737853,
+        56.141992901808294,
+        54.92867141591582,
+        55.08672100017562,
+        54.22265420468669
+      ]
+    },
+    "total_retrains": {
+      "mean": 10.0,
+      "std": 0.0,
+      "min": "10",
+      "max": "10",
+      "values": [
+        10,
+        10,
+        10,
+        10,
+        10
+      ]
+    }
+  },
+  "timestamp": "2026-04-01T13:15:45.492649"
+}
